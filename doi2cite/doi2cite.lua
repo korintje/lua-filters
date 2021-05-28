@@ -10,13 +10,15 @@
 --------------------------------------------------------------------------------
 base_url = "http://api.crossref.org"
 bibpath = "./from_doi.bib"
-str_404 = "Resource not found."
-str_503 = "<html><body><h1>503 Service Unavailable</h1>\n"..
-        "No server is available to handle this request.\n"..
-        "</body></html>"
 key_list = {};
 doi_key_map = {};
 doi_entry_map = {};
+error_strs = {};
+error_strs["Resource not found."] = 404
+error_strs["<html><body><h1>503 Service Unavailable</h1>\n"..
+    "No server is available to handle this request.\n"..
+    "</body></html>"] = 503
+
 
 --------------------------------------------------------------------------------
 -- Pandoc Functions --
@@ -65,7 +67,7 @@ function Cite(c)
                 citation.id = entry_key
             else
                 local entry_str = get_bibentry(doi)
-                if entry_str == nil or entry_str == str_404 or entry_str == str_503 then
+                if entry_str == nil or error_strs[entry_str] ~= nil then
                     print("Failed to get ref from DOI: " .. doi)
                 else
                     entry_str = tex2raw(entry_str)
